@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>Delete Reservation</h1>
+
+<p>Are you sure you want to delete the contact {{ reservation }}?</p>
+
+<form action="{% url "booking:reservation_delete" pk=reservation.id %}" method="POST">
+  {% csrf_token %}
+
+  <input type="submit" value="Yes, delete." />
+  <a href="{% url "booking:profile" %}">No, cancel.</a>
+</form>
+
+{% endblock %}

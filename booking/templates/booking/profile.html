@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>home</title>
+{% endblock %}
+{% block body %}
+    {% if perms.booking %}
+        <p>Ma permisje</p>
+    {% endif %}
+    {% if perms.booking.has_hotel %}
+        <p>Moze miec hotel.</p>
+    {% endif %}
+    <ul>
+        {% for reservation in my_reservations %}
+            <li>
+                <p>{{ reservation.id }} --{{ reservation.reservation_owner }} -- {{ reservation.reservation_hotel }} -- {{ reservation.reservation_from }} -- {{ reservation.reservation_to }} -- {{ reservation.reservation_room }}
+                <a class="btn btn-success" href="{% url 'booking:reservation_delete' pk=reservation.id %}" role="button">Delete Reservation</a>
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+

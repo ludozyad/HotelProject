@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>home</title>
+{% endblock %}
+{% block body %}
+    <ul>
+        {% for hotel in all_hotels %}
+            <li>{{ hotel.hotel_owner }} -- {{ hotel.hotel_name }} -- {{ hotel.hotel_country }} -- {{ hotel.hotel_city }} --
+            {% if user.is_authenticated %}
+                {% if not perms.booking.has_hotel %}
+                    <a class="btn btn-success" href="{% url 'booking:reservation_add' hotel_id=hotel.pk %}" role="button">Reservation</a>
+                {% endif %}
+            {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
