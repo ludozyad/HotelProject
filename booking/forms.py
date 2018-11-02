@@ -1,7 +1,7 @@
-from django.forms import ModelForm, DateTimeInput
+from django.forms import ModelForm, Textarea
 from django import forms
 from django.contrib.auth.models import Permission
-from booking.models import HotelOwner, Reservation
+from booking.models import HotelOwner, Reservation, Opinion
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -43,5 +43,14 @@ class ReservationForm(ModelForm):
         widgets = {
             'reservation_from': forms.DateTimeInput(attrs={'class': 'datetime-input'}),
             'reservation_to': forms.DateTimeInput(attrs={'class': 'datetime-input'}),
+        }
+
+
+class OpinionForm(ModelForm):
+    class Meta:
+        model = Opinion
+        exclude = ['opinion_to', 'opinion_date']
+        widgets = {
+            'opinion_content': Textarea(attrs={'cols': 80, 'rows': 20}),
         }
 

@@ -3,6 +3,8 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
+from datetime import datetime
+import datetime
 from django.forms import DateTimeInput
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -49,6 +51,25 @@ class Reservation(models.Model):
     reservation_to = models.DateField()
     reservation_room = models.CharField(max_length=20, blank=False, choices=ROOM_CHOICES)
 
+    @property
+    def is_before(self):
+        now = datetime.datetime.now()
+        return now.strftime("%Y-%m-%d") < self.reservation_from.strftime("%Y-%m-%d")
+
+    @property
+    def is_after(self):
+        now = datetime.datetime.now()
+        print("is_after: ")
+        print("now: " + now.strftime("%Y-%m-%d"))
+        print("res_to: " + self.reservation_to.strftime("%Y-%m-%d"))
+        return now.strftime("%Y-%m-%d") > self.reservation_to.strftime("%Y-%m-%d")
+
+    @property
+    def has_opinion(self):
+        opinion = Opinion.objects.filter(opinion_to=self)
+        count = opinion.count()
+        return count == 1
+
 
 class ReservationDays(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
@@ -56,3 +77,18 @@ class ReservationDays(models.Model):
 
     def __str__(self):
         return str(self.reservation_dates)
+
+
+class Opinion(models.Model):
+    ROOM_CHOICES = (
+        ('very_bad', 'Very Bad'),
+        ('badly', 'Badly'),
+        ('moderation', 'Moderation'),
+        ('good', 'Good'),
+        ('very_good', 'Very Good'),
+        ('excellent', 'Excellent'),
+    )
+    opinion_to = models.OneToOneField(Reservation, on_delete=models.CASCADE)
+    opinion_date = models.DateField()
+    opinion_content = models.TextField()
+    opinion_rating = models.CharField(max_length=20, blank=False, choices=ROOM_CHOICES)

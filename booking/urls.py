@@ -3,6 +3,7 @@ from . import views
 app_name = 'booking'
 urlpatterns = [
     path('home/', views.Home.as_view(), name='home'),
+    path('home/<int:pk>', views.HotelDetails.as_view(), name='hotel_details'),
     path('profile/', views.Profile.as_view(), name='profile'),
     path('login/', views.LoginUserView.as_view(), name='login'),
     path('logout/', views.LogoutUserView.as_view(), name='logout'),
@@ -11,4 +12,5 @@ urlpatterns = [
     path('reservation/list/', views.ReservationListView.as_view(), name='reservation_list'),
     path('reservation/<int:hotel_id>/', views.ReservationCreate.as_view(), name='reservation_add'),
     path('profile/delete/<int:pk>/', views.ReservationDelete.as_view(), name='reservation_delete'),
+    path('profile/add_opinion/<int:pk>/', views.OpinionCreate.as_view(), name='opinion_add'),
 ]

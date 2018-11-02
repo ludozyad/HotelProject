@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <p>{{ hotel.hotel_city }}</p>
+    <p>{{ hotel.hotel_country }}</p>
+    <p>{{ hotel.hotel_name }}</p>
+    <p>{{ hotel.hotel_owner }}</p>
+    <p>{{ hotel.hotel_room_apartment }}</p>
+
+    <li>
+        {% for opinion in opinions %}
+            <p>{{ opinion.opinion_content }}</p>
+            <p>{{ opinion.opinion_rating }}</p>
+        {% endfor %}
+    </li>
+{% endblock %}
