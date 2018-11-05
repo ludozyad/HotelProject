@@ -3,17 +3,54 @@
     <title>home</title>
 {% endblock %}
 {% block body %}
-    <ul>
+    <main class="wrapper" style="padding-top: 75px">
+        <section class="section parallax bg1">
+            <h1>Such Adorableness</h1>
+        </section>
+        <section class="section static">
+        <div class="container">
+    <div id="products" class="row list-group" style="box-shadow: none">
         {% for hotel in all_hotels %}
-            <li>{{ hotel.hotel_owner }} -- {{ hotel.hotel_name }} -- {{ hotel.hotel_country }} -- {{ hotel.hotel_city }} --
-            <a class="btn btn-success" href="{% url 'booking:hotel_details' pk=hotel.pk %}" role="button">View Details</a>
-                {% if user.is_authenticated %}
-                {% if not perms.booking.has_hotel %}
-                    <a class="btn btn-success" href="{% url 'booking:reservation_add' hotel_id=hotel.pk %}" role="button">Reservation</a>
-                {% endif %}
-            {% endif %}
-            {{ now }}
-            </li>
+        <div class="item  col-xs-4 col-lg-4">
+            <div class="thumbnail">
+                <img class="group list-group-image" src="{{ hotel.hotel_image.url }}" alt="" />
+                <div class="caption">
+                    <h4 class="group inner list-group-item-heading">
+                        {{ hotel.hotel_name }} in {{ hotel.hotel_city }} ({{ hotel.hotel_country }})</h4>
+                    <p class="group inner list-group-item-text">
+                        {{ hotel.hotel_short_desc }}</p>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <p class="lead">
+                                From ${{ hotel.hotel_room_sgl_price }}</p>
+                        </div>
+                        <div class="col-sm-4">
+                            <a class="btn btn-success" href="{% url 'booking:hotel_details' pk=hotel.pk %}" role="button">View
+                            Details</a>
+                        </div>
+                        <div class="col-sm-4">
+                        {% if user.is_authenticated %}
+                            {% if not perms.booking.has_hotel %}
+                                <a class="btn btn-success" href="{% url 'booking:reservation_add' hotel_id=hotel.pk %}"
+                                   role="button">Reservation</a>
+                            {% endif %}
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+
+        </div>
+        </section>
+        <section class="section parallax bg2">
+            <h1>SO FWUFFY AWWW</h1>
+        </section>
+    </main>
 {% endblock %}
+
+
+
+

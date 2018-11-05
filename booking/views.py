@@ -37,6 +37,7 @@ class HotelCreate(CreateView):
     fields = ('hotel_name',
               'hotel_country',
               'hotel_city',
+              'hotel_zip_code',
               'hotel_room_sgl',
               'hotel_room_dbl',
               'hotel_room_twin',
@@ -44,11 +45,25 @@ class HotelCreate(CreateView):
               'hotel_room_qdbl',
               'hotel_room_family',
               'hotel_room_apartment',
+              'hotel_room_sgl_price',
+              'hotel_room_dbl_price',
+              'hotel_room_twin_price',
+              'hotel_room_tpl_price',
+              'hotel_room_qdbl_price',
+              'hotel_room_family_price',
+              'hotel_room_apartment_price',
+              'hotel_street',
+              'hotel_street_number',
+              'hotel_place_number',
+              'hotel_short_desc',
+              'hotel_long_desc',
+              'hotel_image',
               )
     success_url = reverse_lazy('booking:home')
 
     def form_valid(self, form):
         form.instance.hotel_owner = self.request.user
+        form.save()
         return super(HotelCreate, self).form_valid(form)
 
 
@@ -58,7 +73,13 @@ class HotelDetails(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(HotelDetails, self).get_context_data(**kwargs)
+        hotel_rating_rounded = round(self.object.hotel_rating)
+        opinions_to_hotel = Opinion.objects.filter(opinion_to__reservation_hotel=self.object)
+        opinions_to_hotel_count = opinions_to_hotel.count()
         context['opinions'] = Opinion.objects.filter(opinion_to__reservation_hotel=self.object)
+        context['hotel_rating_rounded'] = hotel_rating_rounded
+        context['hotel_rating_left'] = 5 - hotel_rating_rounded
+        context['opinions_to_hotel_count'] = opinions_to_hotel_count
         return context
 
 
@@ -150,10 +171,25 @@ class OpinionCreate(CreateView):
         count = opinion.count()
         reservation_end_date = reservation.reservation_to
         opinion_form = form.save(commit=False)
+
         if count == 1 or reservation_end_date >= date.today():
+            print("nie udao sie")
             return redirect(reverse('booking:profile'))
         else:
             opinion_form.save()
+            hotel = Hotel.objects.get(pk=reservation.reservation_hotel.id)
+            opinions_to_hotel = Opinion.objects.filter(opinion_to__reservation_hotel=hotel)
+            opinions_to_hotel_count = opinions_to_hotel.count()
+            rating_sum = 0.0
+            hotel_rating_value = 0.0
+            for opinion_to_hotel in opinions_to_hotel:
+                rating_sum = rating_sum + opinion_to_hotel.opinion_rating
+            if opinions_to_hotel_count > 0:
+                hotel_rating_value = rating_sum / opinions_to_hotel_count
+            else:
+                hotel.hotel_rating = 0.0
+
+            Hotel.objects.filter(pk=reservation.reservation_hotel.id).update(hotel_rating=hotel_rating_value)
             return super().form_valid(form)
 
 

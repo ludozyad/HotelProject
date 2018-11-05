@@ -13,6 +13,7 @@ class RegistrationForm(UserCreationForm):
                   'first_name',
                   'last_name',
                   'email',
+                  'phone_number',
                   'hasHotel',)
 
     def save(self, commit=True):
@@ -21,6 +22,7 @@ class RegistrationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.email = self.cleaned_data['email']
+        user.phone_number = self.cleaned_data['phone_number']
         user.hasHotel = self.cleaned_data['hasHotel']
 
         user.save()

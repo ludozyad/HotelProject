@@ -1,5 +1,6 @@
 <html>
     <head>
+    {% load static %}
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -8,6 +9,7 @@
     <script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="//cdn.bootcss.com/moment.js/2.17.1/moment.min.js"></script>
     <script src="//cdn.bootcss.com/bootstrap-datetimepicker/4.17.44/js/bootstrap-datetimepicker.min.js"></script>
+    <link href="{% static 'booking/style.css' %}" rel="stylesheet">
         {% block head %}
         <meta charset="utf-8">
         <title>base head</title>
@@ -23,8 +25,8 @@
 
     </head>
     <body>
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="{% url 'booking:home' %}">Hotel Manager</a>
         </div>
@@ -53,8 +55,10 @@
             </ul>
       </div>
     </nav>
+
     {% block body %}
 
     {% endblock %}
+
     </body>
 </html>

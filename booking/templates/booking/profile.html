@@ -9,7 +9,7 @@
     {% if perms.booking.has_hotel %}
         <p>Moze miec hotel.</p>
     {% endif %}
-    <ul>
+    <ul style="padding-top: 60px">
         {% for reservation in my_reservations %}
             <li>
                 <p>{{ reservation.id }} --{{ reservation.reservation_owner }} -- {{ reservation.reservation_hotel }} -- {{ reservation.reservation_from }} -- {{ reservation.reservation_to }} -- {{ reservation.reservation_room }}

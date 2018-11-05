@@ -1,16 +1,186 @@
 {% extends 'base.html' %}
+{% block head %}
+    {% load static %}
+    {% load booking_extras %}
+    <link href="{% static 'booking/style_detail.css' %}" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+    <style>
+        .single {
+            padding: 30px 15px;
+            background: #fcfcfc;
+            border: 1px solid #fcfcfc;
+            -webkit-box-shadow: 1px 1px 13px -1px rgba(0, 0, 0, 0.75);
+            -moz-box-shadow: 1px 1px 13px -1px rgba(0, 0, 0, 0.75);
+            box-shadow: 1px 1px 13px -1px rgba(0, 0, 0, 0.75);
+        }
 
+        .single h3.side-title {
+            margin: 0;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: 20px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .single h3.side-title:after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: #ff173c;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .single ul {
+            margin-bottom: 0;
+        }
+
+        .single li {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f0f0f0;
+            line-height: 40px;
+            display: block;
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
 {% block body %}
-    <p>{{ hotel.hotel_city }}</p>
-    <p>{{ hotel.hotel_country }}</p>
-    <p>{{ hotel.hotel_name }}</p>
-    <p>{{ hotel.hotel_owner }}</p>
-    <p>{{ hotel.hotel_room_apartment }}</p>
+    <div class="container-fluid" style="padding-top: 20px">
 
-    <li>
-        {% for opinion in opinions %}
-            <p>{{ opinion.opinion_content }}</p>
-            <p>{{ opinion.opinion_rating }}</p>
-        {% endfor %}
-    </li>
+        <div class="card">
+            <div class="row">
+                <div class="preview col-md-6">
+                    <div class="preview-pic tab-content">
+                        <div class="tab-pane active" id="pic-1"><img src="{{ hotel.hotel_image.url }}"/></div>
+                    </div>
+                </div>
+                <div class="details col-md-6">
+                    <div class="details col-md-6">
+                    <h3 class="product-title">{{ hotel.hotel_name }}</h3>
+                    <div class="rating">
+                        <div class="stars">
+                            {% for star in hotel_rating_rounded|times %}
+                                <span class="fa fa-star checked"></span>
+                            {% endfor %}
+                            {% for star in hotel_rating_left|times %}
+                                <span class="fa fa-star"></span>
+                            {% endfor %}
+                        </div>
+                        <span class="review-no">{{ opinions_to_hotel_count }} reviews</span>
+                    </div>
+                    <p class="product-description">
+                        {{ hotel.hotel_long_desc }}
+                    </p>
+                    <h4 class="price">Starting Price: <span>${{ hotel.hotel_room_sgl_price }}</span></h4>
+                </div>
+                <div class="details col-md-6">
+                    <div class="well">
+                        <h3 style="line-height:15%;"><i class="fa fa-home fa-1x"
+                                                        style="line-height:6%;color:#339966"></i> Adress:</h3>
+                        <p style="margin-top:10%;line-height:35%">{{ hotel.hotel_street }} </p>
+                        <p>{{ hotel.hotel_zip_code }}	&nbsp;{{ hotel.hotel_city }}</p>
+                        <br/>
+                        <br/>
+                        <h3 style="line-height:15%;"><i class="fa fa-envelope fa-1x"
+                                                        style="line-height:6%;color:#339966"></i> E-Mail:</h3>
+                        <p style="margin-top:10%;line-height:35%">{{ hotel.hotel_owner.email }}</p>
+                        <br/>
+                        <br/>
+                        <h3 style="line-height:15%;"><i class="fa fa-user fa-1x"
+                                                        style="line-height:6%;color:#339966"></i> Hotel Owner:</h3>
+                        <p style="margin-top:10%;line-height:35%">{{ hotel.hotel_owner }}</p>
+                        <br/>
+                        <br/>
+                        <h3 style="line-height:15%;"><i class="fa fa-yelp fa-1x"
+                                                        style="line-height:6%;color:#339966"></i> Find us:</h3>
+                        <p style="margin-top:10%;line-height:35%"><a
+                                href="https://www.google.com/maps/search/?api=1&query={{ hotel.hotel_city }},{{ hotel.hotel_street }}" target="_blank">Google Maps</a></p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="container-fluid" style="padding-bottom: 20px">
+
+            <div class="card" style="padding-top: 30px;padding-bottom: 70px; margin-top: 20px">
+                <div class="details col-md-6" style="text-align:center;">
+                    <p style="font-size: 30px"> Opinions about the hotel</p>
+                </div>
+                <div class="details col-md-6" style="text-align:center;">
+                    <p style="font-size: 30px;"> Additional information about the hotel </p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px">
+            <div class="row">
+            <div class="details col-md-6">
+                    {% for opinion in opinions %}
+                        <div class="list-group">
+                            <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <b class="mb-1">{{ opinion.opinion_to.reservation_owner }}</b> in
+                                    <small>{{ opinion.opinion_date }}</small>
+                                </div>
+                                <p class="mb-1">{{ opinion.opinion_content }}</p>
+                                <small>Visitor Rating: {{ opinion.opinion_rating|floatformat }}/5</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="details col-md-6">
+                    <div class="single category ">
+                        <div class="row">
+                            <div class="col-6 col-md-4"><h4 style="text-align: left;">Category</h4></div>
+                            <div class="col-6 col-md-4"><h4 style="text-align: center;">Quantity</h4></div>
+                            <div class="col-6 col-md-4"><h4 style="text-align: right;">Price</h4></div>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Single room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_sgl }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_sgl_price }}</p></div>
+                            </div></li>
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Double room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_dbl }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_dbl_price }}</p></div>
+                            </div></li>
+                              <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Twin room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_twin }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_twin_price }}</p></div>
+                            </div></li>
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Triple room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_tpl }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_tpl_price }}</p></div>
+                            </div></li>
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Four-person room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_qdbl }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_qdbl_price }}</p></div>
+                            </div></li>
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Family room</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_family }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_family_price }}</p></div>
+                            </div></li>
+                            <li><div class="row">
+                                <div class="col-6 col-md-4"><p style="text-align: left;">Apartment</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: center;">{{ hotel.hotel_room_apartment }}</p></div>
+                                <div class="col-6 col-md-4"><p style="text-align: right;">${{ hotel.hotel_room_apartment_price }}</p></div>
+                            </div></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+        </div>
 {% endblock %}

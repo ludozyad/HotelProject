@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,7 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = 'booking:home'
 LOGOUT_REDIRECT_URL = 'booking:login'
 AUTH_USER_MODEL = 'booking.HotelOwner'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = "booking/static/"
+MEDIA_URL = '/media/'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
