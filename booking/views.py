@@ -16,7 +16,7 @@ from django import forms
 import datetime
 from django.shortcuts import get_object_or_404
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
-
+from django.views.decorators.csrf import csrf_exempt
 
 class Home(ListView):
     template_name = 'booking/home.html'
@@ -26,10 +26,19 @@ class Home(ListView):
         now = datetime.datetime.now()
         context = super().get_context_data(**kwargs)
         context['now'] = now.strftime("%Y-%m-%d")
+        top_opinions = Opinion.objects.order_by('-opinion_rating')[:3]
+        context['top_opinions'] = top_opinions
         return context
 
     def get_queryset(self):
-        return Hotel.objects.all()
+        qs = Hotel.objects.all()
+        query = self.request.GET.get("q", None)
+        if query is not None:
+            qs = qs.filter(hotel_city__icontains=query)
+        else:
+            qs = Hotel.objects.all()
+
+        return qs
 
 
 class HotelCreate(CreateView):
@@ -123,6 +132,7 @@ class ReservationCreate(CreateView):
         today = date.today()
 
         error = False
+        error_2 = False
         date_error = False
         date_error_2 = False
 
@@ -134,12 +144,18 @@ class ReservationCreate(CreateView):
 
         for single_date in daterange(start_date, end_date):
             counter = reservation_days.filter(reservation_dates=single_date).count()
-            if counter == model_room_counter:
+            if counter == model_room_counter or counter >= form.instance.reservation_for:
                 error = True
 
-        if error or date_error or date_error_2 or model_room_counter == 0:
+        if form.instance.reservation_for > model_room_counter:
+                error_2 = True
+
+        if error or error_2 or date_error or date_error_2 or model_room_counter == 0:
             if error:
                 form.add_error('reservation_room', forms.ValidationError('These rooms reserved'))
+            if error_2:
+                form.add_error('reservation_for', forms.ValidationError('We dont have enough rooms, max: '
+                                                                        + str(model_room_counter)))
             if date_error:
                 form.add_error('reservation_from', forms.ValidationError('End date must be greater then start date'))
                 form.add_error('reservation_to', forms.ValidationError('End date must be greater then start date'))
@@ -149,9 +165,13 @@ class ReservationCreate(CreateView):
             return super(ReservationCreate, self).form_invalid(form)
         else:
             response = super(ReservationCreate, self).form_valid(form)
-            for single_date in daterange(start_date, end_date):
-                if start_date != end_date:
-                    ReservationDays.objects.create(reservation=form.instance, reservation_dates=single_date, )
+            if start_date != end_date:
+                for single_date in daterange(start_date, end_date):
+                    for i in range(form.instance.reservation_for):
+                        ReservationDays.objects.create(reservation=form.instance, reservation_dates=single_date, )
+            else:
+                for i in range(form.instance.reservation_for):
+                    ReservationDays.objects.create(reservation=form.instance, reservation_dates=start_date, )
             thisReservationDays = ReservationDays.objects.filter(reservation=form.instance)
             print(str(thisReservationDays))
             return response
@@ -172,7 +192,8 @@ class OpinionCreate(CreateView):
         reservation_end_date = reservation.reservation_to
         opinion_form = form.save(commit=False)
 
-        if count == 1 or reservation_end_date >= date.today():
+        # if count == 1 or reservation_end_date >= date.today():
+        if count == 1:
             print("nie udao sie")
             return redirect(reverse('booking:profile'))
         else:
@@ -254,3 +275,17 @@ def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
     yield end_date
+
+
+@csrf_exempt
+def update_hotels(request):
+    print('update_hotels')
+    search_text = request.POST['search_text']
+    all_hotels = Hotel.objects.filter(hotel_city__icontains=search_text)
+    return render(request, 'booking/ajax_search.html', {'all_hotels': all_hotels})
+
+
+
+
+
+

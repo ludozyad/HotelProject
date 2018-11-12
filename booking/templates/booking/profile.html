@@ -3,27 +3,37 @@
     <title>home</title>
 {% endblock %}
 {% block body %}
-    {% if perms.booking %}
-        <p>Ma permisje</p>
-    {% endif %}
-    {% if perms.booking.has_hotel %}
-        <p>Moze miec hotel.</p>
-    {% endif %}
-    <ul style="padding-top: 60px">
-        {% for reservation in my_reservations %}
-            <li>
-                <p>{{ reservation.id }} --{{ reservation.reservation_owner }} -- {{ reservation.reservation_hotel }} -- {{ reservation.reservation_from }} -- {{ reservation.reservation_to }} -- {{ reservation.reservation_room }}
-                    {% if reservation.is_before %}
-                        <a class="btn btn-success" href="{% url 'booking:reservation_delete' pk=reservation.id %}" role="button">Delete Reservation</a>
-                    {% endif %}
-                    {% if not reservation.has_opinion %}
-                        {% if reservation.is_after %}
-                                <a class="btn btn-success" href="{% url 'booking:opinion_add' pk=reservation.id %}" role="button">Add opinion</a>
-                        {% endif %}
-                    {% endif %}
-                </p>
-            </li>
-        {% endfor %}
-    </ul>
+
+    <div class="container-fluid" style="padding-top: 50px">
+        <div class="card" style="margin-top: 20px">
+            <div class="row"></div>
+                    {% for reservation in my_reservations %}
+                        <div class="col-md-4 col-offset-6">
+                        <div class="list-group">
+                            <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <p>Hotel: {{ reservation.reservation_hotel }}
+                                        from {{ reservation.reservation_from }} to {{ reservation.reservation_to }} </p>
+                                    <p>Type of reserved room: {{ reservation.get_reservation_room_display }} x{{ reservation.reservation_for }} times.</p>
+                                </div>
+                             {% comment %}   {% if reservation.is_before %}{% endcomment %}
+                                    <a class="btn btn-success"
+                                       href="{% url 'booking:reservation_delete' pk=reservation.id %}" role="button">Delete
+                                        Reservation</a>
+                          {% comment %}      {% endif %}{% endcomment %}
+                              {% comment %}  {% if not reservation.has_opinion %}{% endcomment %}
+                                {% comment %}    {% if reservation.is_after %}{% endcomment %}
+                                        <a class="btn btn-success"
+                                           href="{% url 'booking:opinion_add' pk=reservation.id %}" role="button">Add
+                                            opinion</a>
+                                 {% comment %}   {% endif %}{% endcomment %}
+                             {% comment %}   {% endif %}{% endcomment %}
+                            </div>
+                        </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 {% endblock %}
 

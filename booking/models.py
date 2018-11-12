@@ -68,6 +68,16 @@ class Hotel(models.Model):
     hotel_room_apartment_price = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0,
                                                              verbose_name="Your hotel apartment room price in $")
 
+    @property
+    def rating(self):
+        hotel_rating_rounded = round(self.hotel_rating)
+        return hotel_rating_rounded
+
+    @property
+    def rating_left(self):
+        hotel_rating_rounded = round(self.hotel_rating)
+        return 5 - hotel_rating_rounded
+
     def __str__(self):
         return self.hotel_name
 
@@ -87,6 +97,7 @@ class Reservation(models.Model):
     reservation_from = models.DateField()
     reservation_to = models.DateField()
     reservation_room = models.CharField(max_length=20, blank=False, choices=ROOM_CHOICES)
+    reservation_for = models.PositiveIntegerField(validators=[MinValueValidator(1)], default=1)
 
     @property
     def is_before(self):
@@ -129,3 +140,11 @@ class Opinion(models.Model):
     opinion_date = models.DateField()
     opinion_content = models.TextField()
     opinion_rating = models.FloatField(blank=False, choices=ROOM_CHOICES)
+
+    @property
+    def rating_int(self):
+        return int(self.opinion_rating)
+
+    @property
+    def rating_int_left(self):
+        return 5 - int(self.opinion_rating)

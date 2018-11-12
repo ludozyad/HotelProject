@@ -41,7 +41,10 @@ class RegistrationForm(UserCreationForm):
 class ReservationForm(ModelForm):
     class Meta:
         model = Reservation
-        fields = ['reservation_from', 'reservation_to', 'reservation_room']
+        fields = ['reservation_from',
+                  'reservation_to',
+                  'reservation_room',
+                  'reservation_for']
         widgets = {
             'reservation_from': forms.DateTimeInput(attrs={'class': 'datetime-input'}),
             'reservation_to': forms.DateTimeInput(attrs={'class': 'datetime-input'}),

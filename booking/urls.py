@@ -13,4 +13,5 @@ urlpatterns = [
     path('reservation/<int:hotel_id>/', views.ReservationCreate.as_view(), name='reservation_add'),
     path('profile/delete/<int:pk>/', views.ReservationDelete.as_view(), name='reservation_delete'),
     path('profile/add_opinion/<int:pk>/', views.OpinionCreate.as_view(), name='opinion_add'),
+    path('search/', views.update_hotels, name='update_hotels'),
 ]
