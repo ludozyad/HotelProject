@@ -20,19 +20,36 @@
                         </div>
                            <div class="row">
                             <div class="col-md-3">
-                                {{ form.reservation_room|as_crispy_field}}
+                                {{ form.reservation_room_sgl_quantity|as_crispy_field}}
                             </div>
                             <div class="col-md-3">
-                                 {{ form.reservation_for|as_crispy_field}}
+                                 {{ form.reservation_room_dbl_quantity|as_crispy_field}}
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6" style="text-align: right; padding-top: 25px">
-                                <button type="submit" class="btn btn-success">Register</button>
+                          <div class="row">
+                            <div class="col-md-3">
+                                {{ form.reservation_room_twin_quantity|as_crispy_field}}
+                            </div>
+                            <div class="col-md-3">
+                                 {{ form.reservation_room_tpl_quantity|as_crispy_field}}
                             </div>
                         </div>
-
+                          <div class="row">
+                            <div class="col-md-3">
+                                {{ form.reservation_room_qdbl_quantity|as_crispy_field}}
+                            </div>
+                            <div class="col-md-3">
+                                 {{ form.reservation_room_family_quantity|as_crispy_field}}
+                            </div>
+                        </div>
+                          <div class="row">
+                            <div class="col-md-3">
+                                {{ form.reservation_room_apartment_quantity|as_crispy_field}}
+                            </div>
+                            <div class="col-md-3" style="text-align: right; padding-top: 25px">
+                                 <button type="submit" class="btn btn-success">Register</button>
+                            </div>
+                        </div>
                     </form>
             </div>
         </div>

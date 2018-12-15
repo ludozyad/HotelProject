@@ -128,3 +128,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = "booking/static/"
 MEDIA_URL = '/media/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Example for using Gmail
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'blazejmalaszowski@gmail.com'
+EMAIL_HOST_PASSWORD = 'Burak123'
+EMAIL_PORT = 587

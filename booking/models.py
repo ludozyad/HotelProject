@@ -96,8 +96,13 @@ class Reservation(models.Model):
     reservation_hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
     reservation_from = models.DateField()
     reservation_to = models.DateField()
-    reservation_room = models.CharField(max_length=20, blank=False, choices=ROOM_CHOICES)
-    reservation_for = models.PositiveIntegerField(validators=[MinValueValidator(1)], default=1)
+    reservation_room_sgl_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_dbl_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_twin_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_tpl_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_qdbl_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_family_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_room_apartment_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
 
     @property
     def is_before(self):
@@ -121,6 +126,7 @@ class Reservation(models.Model):
 
 class ReservationDays(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+    reservation_room = models.CharField(max_length=100)
     reservation_dates = models.DateField()
 
     def __str__(self):

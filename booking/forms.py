@@ -43,8 +43,14 @@ class ReservationForm(ModelForm):
         model = Reservation
         fields = ['reservation_from',
                   'reservation_to',
-                  'reservation_room',
-                  'reservation_for']
+                  'reservation_room_sgl_quantity',
+                  'reservation_room_dbl_quantity',
+                  'reservation_room_twin_quantity',
+                  'reservation_room_tpl_quantity',
+                  'reservation_room_qdbl_quantity',
+                  'reservation_room_family_quantity',
+                  'reservation_room_apartment_quantity',
+                  ]
         widgets = {
             'reservation_from': forms.DateTimeInput(attrs={'class': 'datetime-input'}),
             'reservation_to': forms.DateTimeInput(attrs={'class': 'datetime-input'}),
