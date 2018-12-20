@@ -263,9 +263,6 @@ def error_validation(form, hotel, hotel_room_str, hotel_room, start_date, end_da
                                                       reservation__reservation_hotel=hotel)
     for single_date in daterange(start_date, end_date):
         counter = reservation_days.filter(reservation_dates=single_date).count()
-        print("counter: " + str(counter))
-        print("room_quantity: " + str(room_quantity))
-        print("hotel_room: " + str(hotel_room))
         if room_quantity > hotel_room - counter or room_quantity > hotel_room:
             return True
         else:
@@ -323,11 +320,11 @@ class ReservationDelete(DeleteView):
                 print(explanation_text)
                 email = EmailMessage('Your reservation was deleted.', explanation_text, to=['malaszowski@interia.pl'])
                 email.send()
+                super().delete(*args, **kwargs)
             if self.request.method == "GET":
                 print("get")
             return HttpResponseRedirect(success_url)
         else:
-            super().delete(*args, **kwargs)
             return HttpResponseRedirect(success_url)
 
     def get_success_url(self):
@@ -367,7 +364,6 @@ class ReservationListView(ListView):
 
 
 class RegisterUserView(View):
-
     def post(self, request):
         form = RegistrationForm(request.POST)
         if form.is_valid():

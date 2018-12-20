@@ -83,15 +83,6 @@ class Hotel(models.Model):
 
 
 class Reservation(models.Model):
-    ROOM_CHOICES = (
-        ('room_sgl', 'Single room'),
-        ('room_dbl', 'Double room'),
-        ('room_twin', 'Twin room'),
-        ('room_tpl', 'Triple room'),
-        ('room_qdbl', 'Quad room'),
-        ('room_family', 'Family room'),
-        ('room_apartment', 'Apartment'),
-    )
     reservation_owner = models.ForeignKey(HotelOwner, on_delete=models.CASCADE)
     reservation_hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
     reservation_from = models.DateField()
