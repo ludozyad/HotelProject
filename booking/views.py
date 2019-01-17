@@ -121,12 +121,12 @@ class ReservationCreate(CreateView):
         room_sgl_error = False
         if form.instance.reservation_room_sgl_quantity > 0:
             sgl_room_quantity = form.instance.reservation_room_sgl_quantity
-            room_sgl_error = error_validation(form, hotel, 'hotel_room_sgl', hotel.hotel_room_sgl, start_date, end_date)
+            room_sgl_error = error_validation(sgl_room_quantity, hotel, 'hotel_room_sgl', hotel.hotel_room_sgl, start_date, end_date)
 
         room_dbl_error = False
         if form.instance.reservation_room_dbl_quantity > 0:
             dbl_room_quantity = form.instance.reservation_room_dbl_quantity
-            room_dbl_error = error_validation(form, hotel, 'hotel_room_dbl', hotel.hotel_room_dbl, start_date, end_date)
+            room_dbl_error = error_validation(dbl_room_quantity, hotel, 'hotel_room_dbl', hotel.hotel_room_dbl, start_date, end_date)
 
         room_twin_error = False
         if form.instance.reservation_room_twin_quantity > 0:
@@ -137,24 +137,24 @@ class ReservationCreate(CreateView):
         room_tpl_error = False
         if form.instance.reservation_room_tpl_quantity > 0:
             tpl_room_quantity = form.instance.reservation_room_tpl_quantity
-            room_tpl_error = error_validation(form, hotel, 'hotel_room_tpl', hotel.hotel_room_tpl, start_date, end_date)
+            room_tpl_error = error_validation(tpl_room_quantity, hotel, 'hotel_room_tpl', hotel.hotel_room_tpl, start_date, end_date)
 
         room_qdbl_error = False
         if form.instance.reservation_room_qdbl_quantity > 0:
             qdbl_room_quantity = form.instance.reservation_room_qdbl_quantity
-            room_qdbl_error = error_validation(form, hotel, 'hotel_room_qdbl', hotel.hotel_room_qdbl, start_date,
+            room_qdbl_error = error_validation(qdbl_room_quantity, hotel, 'hotel_room_qdbl', hotel.hotel_room_qdbl, start_date,
                                                end_date)
 
         room_family_error = False
         if form.instance.reservation_room_family_quantity > 0:
             family_room_quantity = form.instance.reservation_room_family_quantity
-            room_family_error = error_validation(form, hotel, 'hotel_room_family', hotel.hotel_room_family, start_date,
+            room_family_error = error_validation(family_room_quantity, hotel, 'hotel_room_family', hotel.hotel_room_family, start_date,
                                                  end_date)
 
         room_apartment_error = False
         if form.instance.reservation_room_apartment_quantity > 0:
             apartment_room_quantity = form.instance.reservation_room_apartment_quantity
-            room_apartment_error = error_validation(form, hotel, 'hotel_room_apartment', hotel.hotel_room_apartment,
+            room_apartment_error = error_validation(apartment_room_quantity, hotel, 'hotel_room_apartment', hotel.hotel_room_apartment,
                                                     start_date, end_date)
 
         date_error = False
