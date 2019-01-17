@@ -103,9 +103,6 @@ class Reservation(models.Model):
     @property
     def is_after(self):
         now = datetime.datetime.now()
-        print("is_after: ")
-        print("now: " + now.strftime("%Y-%m-%d"))
-        print("res_to: " + self.reservation_to.strftime("%Y-%m-%d"))
         return now.strftime("%Y-%m-%d") > self.reservation_to.strftime("%Y-%m-%d")
 
     @property
@@ -125,7 +122,7 @@ class ReservationDays(models.Model):
 
 
 class Opinion(models.Model):
-    ROOM_CHOICES = (
+    OPINION_CHOICES = (
         (0.0, 'Very Bad'),
         (1.0, 'Badly'),
         (2.0, 'Moderation'),
@@ -136,7 +133,7 @@ class Opinion(models.Model):
     opinion_to = models.OneToOneField(Reservation, on_delete=models.CASCADE)
     opinion_date = models.DateField()
     opinion_content = models.TextField()
-    opinion_rating = models.FloatField(blank=False, choices=ROOM_CHOICES)
+    opinion_rating = models.FloatField(blank=False, choices=OPINION_CHOICES)
 
     @property
     def rating_int(self):

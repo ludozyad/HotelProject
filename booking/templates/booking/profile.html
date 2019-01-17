@@ -8,69 +8,71 @@
     <div class="container-fluid" style="padding-top: 50px">
         <div class="card" style="margin-top: 20px">
             <div class="row"></div>
-                    {% for reservation in my_reservations %}
-                        <div class="col-md-4 col-offset-6">
-                        <div class="list-group">
-                            <div class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <p>Hotel: {{ reservation.reservation_hotel }}
-                                        from {{ reservation.reservation_from }} to {{ reservation.reservation_to }} </p>
-                                    {% if reservation.reservation_room_sgl_quantity != 0%}
+            {% for reservation in my_reservations %}
+                <div class="col-md-4 col-offset-6">
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <p>Hotel: {{ reservation.reservation_hotel }}
+                                    from {{ reservation.reservation_from }} to {{ reservation.reservation_to }} </p>
+                                {% if reservation.reservation_room_sgl_quantity != 0 %}
                                     <p>room_sgl {{ reservation.reservation_room_sgl_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_dbl_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_dbl_quantity != 0 %}
                                     <p>room_dbl {{ reservation.reservation_room_dbl_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_twin_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_twin_quantity != 0 %}
                                     <p>room_twin {{ reservation.reservation_room_twin_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_tpl_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_tpl_quantity != 0 %}
                                     <p>room_tpl {{ reservation.reservation_room_tpl_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_qdbl_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_qdbl_quantity != 0 %}
                                     <p>room_qdbl {{ reservation.reservation_room_qdbl_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_family_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_family_quantity != 0 %}
                                     <p>room_family {{ reservation.reservation_room_family_quantity }} times</p>
-                                    {% endif %}
-                                    {% if reservation.reservation_room_apartment_quantity != 0%}
+                                {% endif %}
+                                {% if reservation.reservation_room_apartment_quantity != 0 %}
                                     <p>room_apartment {{ reservation.reservation_room_apartment_quantity }} times</p>
-                                    {% endif %}
-                                    {% if perms.booking.has_hotel %}
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                {{ reservation.reservation_owner }}
-                                            </div>
-                                            <div class="col-md-12">
-                                       <a class="btn btn-success"
-                                       href="{% url 'booking:reservation_delete' pk=reservation.id %}" role="button">Delete
-                                        Reservation</a>
+                                {% endif %}
+                                {% if perms.booking.has_hotel %}
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            {{ reservation.reservation_owner }}
                                         </div>
+                                        <div class="col-md-12">
+                                            <a class="btn btn-success"
+                                               href="{% url 'booking:reservation_delete' pk=reservation.id %}"
+                                               role="button">Delete
+                                                Reservation</a>
                                         </div>
-                                    {% endif %}
-                                </div>
+                                    </div>
+                                {% endif %}
+                            </div>
                             {% if not perms.booking.has_hotel %}
-                             {% comment %}   {% if reservation.is_before %}{% endcomment %}
+                               {% comment %} {% if reservation.is_before %}{% endcomment %}
                                     <a class="btn btn-success"
                                        href="{% url 'booking:reservation_delete' pk=reservation.id %}" role="button">Delete
                                         Reservation</a>
-                          {% comment %}      {% endif %}{% endcomment %}
+                            {% comment %}    {% endif %}{% endcomment %}
                             {% endif %}
                             {% if not perms.booking.has_hotel %}
-                              {% comment %}  {% if not reservation.has_opinion %}{% endcomment %}
-                                {% comment %}    {% if reservation.is_after %}{% endcomment %}
+                                {% if not reservation.has_opinion %}
+                                    {% if reservation.is_after %}
                                         <a class="btn btn-success"
                                            href="{% url 'booking:opinion_add' pk=reservation.id %}" role="button">Add
                                             opinion</a>
-                                 {% comment %}   {% endif %}{% endcomment %}
-                             {% comment %}   {% endif %}{% endcomment %}
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
-                            </div>
                         </div>
-                        </div>
-                    {% endfor %}
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
+    </div>
+    </div>
 {% endblock %}
+
 

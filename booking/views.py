@@ -130,9 +130,10 @@ class ReservationCreate(CreateView):
 
         room_twin_error = False
         if form.instance.reservation_room_twin_quantity > 0:
+
             twin_room_quantity = form.instance.reservation_room_twin_quantity
-            room_twin_error = error_validation(form, hotel, 'hotel_room_twin', hotel.hotel_room_twin, start_date,
-                                               end_date)
+            room_twin_error = error_validation(twin_room_quantity, hotel, 'hotel_room_twin',hotel.hotel_room_twin, start_date, end_date)
+
         room_tpl_error = False
         if form.instance.reservation_room_tpl_quantity > 0:
             tpl_room_quantity = form.instance.reservation_room_tpl_quantity
@@ -257,13 +258,12 @@ class ReservationCreate(CreateView):
             return response
 
 
-def error_validation(form, hotel, hotel_room_str, hotel_room, start_date, end_date):
-    room_quantity = form.instance.reservation_room_sgl_quantity
+def error_validation(room_quantity_from_form, hotel, hotel_room_str, hotel_room_quantity, start_date, end_date):
     reservation_days = ReservationDays.objects.filter(reservation_room=hotel_room_str,
                                                       reservation__reservation_hotel=hotel)
     for single_date in daterange(start_date, end_date):
         counter = reservation_days.filter(reservation_dates=single_date).count()
-        if room_quantity > hotel_room - counter or room_quantity > hotel_room:
+        if room_quantity_from_form > hotel_room_quantity - counter or room_quantity_from_form > hotel_room_quantity:
             return True
         else:
             return False
@@ -279,14 +279,11 @@ class OpinionCreate(CreateView):
         reservation = Reservation.objects.get(pk=reservation_pk)
         form.instance.opinion_to = reservation
         form.instance.opinion_date = date.today()
-        opinion = Opinion.objects.filter(opinion_to=reservation)
-        count = opinion.count()
+        count = Opinion.objects.filter(opinion_to=reservation).count()
         reservation_end_date = reservation.reservation_to
         opinion_form = form.save(commit=False)
 
-        # if count == 1 or reservation_end_date >= date.today():
-        if count == 1:
-            print("nie udao sie")
+        if count == 1 or reservation_end_date >= date.today():
             return redirect(reverse('booking:profile'))
         else:
             opinion_form.save()
@@ -317,10 +314,9 @@ class ReservationDelete(DeleteView):
         if obj.reservation_from.strftime("%Y-%m-%d") < now.strftime("%Y-%m-%d"):
             if self.request.method == "POST":
                 explanation_text = self.request.POST.get("info", None)
-                print(explanation_text)
-                email = EmailMessage('Your reservation was deleted.', explanation_text, to=['malaszowski@interia.pl'])
+                email = EmailMessage('Your reservation was deleted, cheers.',
+                                     explanation_text, to=[obj.reservation_owner.email])
                 email.send()
-                super().delete(*args, **kwargs)
             if self.request.method == "GET":
                 print("get")
             return HttpResponseRedirect(success_url)
@@ -336,13 +332,8 @@ class Profile(ListView):
     context_object_name = 'my_reservations'
 
     def get_queryset(self):
-
-        if self.request.user.has_perm('booking.has_hotel'):
-            print("ma permisje")
-
         if self.request.user.hasHotel:
             hotels = Hotel.objects.filter(hotel_owner=self.request.user)
-            print("tu weszlismy")
             return Reservation.objects.filter(reservation_hotel__in=hotels)
         else:
             return Reservation.objects.filter(reservation_owner=self.request.user)
@@ -386,7 +377,6 @@ def daterange(start_date, end_date):
 
 @csrf_exempt
 def update_hotels(request):
-    print('update_hotels')
     search_text = request.POST['search_text']
     all_hotels = Hotel.objects.filter(hotel_city__icontains=search_text)
     return render(request, 'booking/ajax_search.html', {'all_hotels': all_hotels})
