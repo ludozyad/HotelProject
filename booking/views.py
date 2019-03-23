@@ -20,7 +20,6 @@ from django.http.response import HttpResponseForbidden, HttpResponseRedirect, Ht
 from django.views.decorators.csrf import csrf_exempt
 
 
-
 class Home(ListView):
     template_name = 'booking/home.html'
     context_object_name = 'all_hotels'
@@ -72,6 +71,8 @@ class HotelCreate(CreateView):
               'hotel_image',
               )
 
+    def get_success_url(self):
+        return reverse('booking:profile')
 
     def form_valid(self, form):
         form.instance.hotel_owner = self.request.user
@@ -92,6 +93,43 @@ class HotelDetails(DetailView):
         context['hotel_rating_rounded'] = hotel_rating_rounded
         context['hotel_rating_left'] = 5 - hotel_rating_rounded
         context['opinions_to_hotel_count'] = opinions_to_hotel_count
+        return context
+
+
+class HotelStatistics(ListView):
+    model = Reservation
+    context_object_name = 'hotel'
+    template_name = 'booking/hotel_statistics.html'
+
+    def get(self, request, *args, **kwargs):
+        if self.request.is_ajax():
+            data = self.request.GET.get('month_id')
+            print(data)
+            reservations = Reservation.objects.filter(reservation_from=data)
+            return render(request, 'booking/statistics_list.html.html', {'reservations': reservations})
+        else:
+            return render(request, 'booking/statistics_list.html.html', {'reservations': Reservation.objects.all()})
+
+    def get_context_data(self, **kwargs):
+        context = super(HotelStatistics, self).get_context_data(**kwargs)
+        pknum = self.kwargs.get('pk', )
+        hotel = Hotel.objects.get(pk=pknum)
+        reservations = Reservation.objects.filter(reservation_hotel=hotel)
+        context['reservations'] = reservations
+        all_prices = []
+        for res in reservations:
+            sglTotalPrice = res.reservation_room_sgl_quantity * hotel.hotel_room_sgl_price
+            dblTotalPrice = res.reservation_room_dbl_quantity * hotel.hotel_room_dbl_price
+            twinTotalPrice = res.reservation_room_twin_quantity * hotel.hotel_room_twin_price
+            tplTotalPrice = res.reservation_room_tpl_quantity * hotel.hotel_room_tpl_price
+            qdblTotalPrice = res.reservation_room_qdbl_quantity * hotel.hotel_room_qdbl_price
+            familyTotalPrice = res.reservation_room_family_quantity * hotel.hotel_room_family_price
+            apartmentTotalPrice = res.reservation_room_apartment_quantity * hotel.hotel_room_apartment_price
+            deltaDays = (res.reservation_to - res.reservation_from).days
+            prices = [sglTotalPrice, dblTotalPrice, twinTotalPrice, tplTotalPrice, qdblTotalPrice, familyTotalPrice,
+                        apartmentTotalPrice, apartmentTotalPrice, deltaDays]
+            all_prices.append(prices)
+        context['prices'] = all_prices
         return context
 
 
@@ -121,40 +159,46 @@ class ReservationCreate(CreateView):
         room_sgl_error = False
         if form.instance.reservation_room_sgl_quantity > 0:
             sgl_room_quantity = form.instance.reservation_room_sgl_quantity
-            room_sgl_error = error_validation(sgl_room_quantity, hotel, 'hotel_room_sgl', hotel.hotel_room_sgl, start_date, end_date)
+            room_sgl_error = error_validation(sgl_room_quantity, hotel, 'hotel_room_sgl', hotel.hotel_room_sgl,
+                                              start_date, end_date)
 
         room_dbl_error = False
         if form.instance.reservation_room_dbl_quantity > 0:
             dbl_room_quantity = form.instance.reservation_room_dbl_quantity
-            room_dbl_error = error_validation(dbl_room_quantity, hotel, 'hotel_room_dbl', hotel.hotel_room_dbl, start_date, end_date)
+            room_dbl_error = error_validation(dbl_room_quantity, hotel, 'hotel_room_dbl', hotel.hotel_room_dbl,
+                                              start_date, end_date)
 
         room_twin_error = False
         if form.instance.reservation_room_twin_quantity > 0:
-
             twin_room_quantity = form.instance.reservation_room_twin_quantity
-            room_twin_error = error_validation(twin_room_quantity, hotel, 'hotel_room_twin',hotel.hotel_room_twin, start_date, end_date)
+            room_twin_error = error_validation(twin_room_quantity, hotel, 'hotel_room_twin', hotel.hotel_room_twin,
+                                               start_date, end_date)
 
         room_tpl_error = False
         if form.instance.reservation_room_tpl_quantity > 0:
             tpl_room_quantity = form.instance.reservation_room_tpl_quantity
-            room_tpl_error = error_validation(tpl_room_quantity, hotel, 'hotel_room_tpl', hotel.hotel_room_tpl, start_date, end_date)
+            room_tpl_error = error_validation(tpl_room_quantity, hotel, 'hotel_room_tpl', hotel.hotel_room_tpl,
+                                              start_date, end_date)
 
         room_qdbl_error = False
         if form.instance.reservation_room_qdbl_quantity > 0:
             qdbl_room_quantity = form.instance.reservation_room_qdbl_quantity
-            room_qdbl_error = error_validation(qdbl_room_quantity, hotel, 'hotel_room_qdbl', hotel.hotel_room_qdbl, start_date,
+            room_qdbl_error = error_validation(qdbl_room_quantity, hotel, 'hotel_room_qdbl', hotel.hotel_room_qdbl,
+                                               start_date,
                                                end_date)
 
         room_family_error = False
         if form.instance.reservation_room_family_quantity > 0:
             family_room_quantity = form.instance.reservation_room_family_quantity
-            room_family_error = error_validation(family_room_quantity, hotel, 'hotel_room_family', hotel.hotel_room_family, start_date,
+            room_family_error = error_validation(family_room_quantity, hotel, 'hotel_room_family',
+                                                 hotel.hotel_room_family, start_date,
                                                  end_date)
 
         room_apartment_error = False
         if form.instance.reservation_room_apartment_quantity > 0:
             apartment_room_quantity = form.instance.reservation_room_apartment_quantity
-            room_apartment_error = error_validation(apartment_room_quantity, hotel, 'hotel_room_apartment', hotel.hotel_room_apartment,
+            room_apartment_error = error_validation(apartment_room_quantity, hotel, 'hotel_room_apartment',
+                                                    hotel.hotel_room_apartment,
                                                     start_date, end_date)
 
         date_error = False
@@ -329,12 +373,12 @@ class ReservationDelete(DeleteView):
 
 class Profile(ListView):
     template_name = 'booking/profile.html'
-    context_object_name = 'my_reservations'
+    context_object_name = 'my_reservations_or_hotels'
 
     def get_queryset(self):
         if self.request.user.hasHotel:
             hotels = Hotel.objects.filter(hotel_owner=self.request.user)
-            return Reservation.objects.filter(reservation_hotel__in=hotels)
+            return hotels
         else:
             return Reservation.objects.filter(reservation_owner=self.request.user)
 
@@ -382,8 +426,15 @@ def update_hotels(request):
     return render(request, 'booking/ajax_search.html', {'all_hotels': all_hotels})
 
 
+@csrf_exempt
+def update_reservations(request):
+    search_text = request.POST.get('month_id', False)
+    print("tu sprawdzamy: " + str(search_text))
+    all_reservations = Reservation.objects.all()
+    return render(request, 'booking/hotel_statistics.html', {'all_reservations': all_reservations})
+
+
 def notify_email(request):
     email = EmailMessage('title', 'body', to=['malaszowski@interia.pl'])
     email.send()
     return render(request, 'booking/home.html')
-

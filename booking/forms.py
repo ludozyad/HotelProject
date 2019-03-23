@@ -1,8 +1,11 @@
 from django.forms import ModelForm, Textarea
 from django import forms
 from django.contrib.auth.models import Permission
+from pip._vendor.msgpack.fallback import xrange
+
 from booking.models import HotelOwner, Reservation, Opinion
 from django.contrib.auth.forms import UserCreationForm
+from booking.widgets import MonthYearWidget
 
 
 class RegistrationForm(UserCreationForm):
@@ -65,3 +68,9 @@ class OpinionForm(ModelForm):
             'opinion_content': Textarea(attrs={'cols': 80, 'rows': 20}),
         }
 
+
+class MyForm(forms.Form):
+    date = forms.DateField(
+        required=False,
+        widget=MonthYearWidget(years=xrange(2004, 2010))
+    )

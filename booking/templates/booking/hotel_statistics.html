@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block head %}
+    <title>zmiana</title>
+    <script>
+        $(document).ready(function () {
+            var input = $("#month_id")
+            input.onchange(function () {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'drug_list' %}",
+                    data: {'month_id': input.val()},
+                    success: function (data) {
+                        $("#list_view").html(data)
+                    }
+                })
+            });
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+
+    <div id='list_view'>
+        {% include 'expirations/list.html' %}
+    </div>
+
+    <div class="container-fluid" style="margin-top: 100px">
+        <label for="month_id"></label>
+
+        <input type="month" id="month_id" style="margin-top: 80px" onchange="updateReservations()">
+        {{ prices }}
+    </div>
+{% endblock %}
+
+
