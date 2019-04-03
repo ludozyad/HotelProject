@@ -94,6 +94,7 @@ class Reservation(models.Model):
     reservation_room_qdbl_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     reservation_room_family_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     reservation_room_apartment_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reservation_total_price = models.FloatField(default=0.0)
 
     @property
     def is_before(self):

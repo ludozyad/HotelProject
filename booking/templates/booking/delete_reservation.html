@@ -11,9 +11,9 @@
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success">Yes, delete.</button>
                         <a class="btn btn-danger" href="{% url "booking:profile" %}" role="button">No, go back.</a>
-                        <input style="width: 250px; height: 34px;" type="text" placeholder="    describe why u delete reservation" name="info" value="">
+                        <input style="width: 250px; height: 34px; padding: 5px" type="text" placeholder="  describe why u delete reservation" name="info" value="">
                     </form>
             </div>
-        </div>asd
+        </div>
 </div>
 {% endblock %}

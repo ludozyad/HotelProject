@@ -15,8 +15,9 @@
                 <div class='list-group gallery'>
                     {% for hotel in my_reservations_or_hotels %}
                         <div class="col-md-6 col-offset-6">
-                            <div class='col-sm-6 col-xs-6 col-md-6 col-lg-6'  style="margin-left: 20%">
-                                <a class="thumbnail fancybox" rel="ligthbox" href="{% url 'booking:hotel_statistics' pk=hotel.id %}">
+                            <div class='col-sm-6 col-xs-6 col-md-6 col-lg-6' style="margin-left: 20%">
+                                <a class="thumbnail fancybox" rel="ligthbox"
+                                   href="{% url 'booking:hotel_statistics' pk=hotel.id %}">
                                     <img class="img-responsive" alt="" src="{{ hotel.hotel_image.url }}"/>
                                     <div class='text-center'>
                                         <small class='text-muted'>{{ hotel.hotel_name }}</small>
@@ -62,7 +63,37 @@
                                     {% if reservation.reservation_room_apartment_quantity != 0 %}
                                         <p>room_apartment {{ reservation.reservation_room_apartment_quantity }}
                                             times</p>
+
                                     {% endif %}
+                                </div>
+
+
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% if not perms.booking.has_hotel %}
+                                                {% if not reservation.has_opinion %}
+                                                    {% comment %}      {% if reservation.is_after %} {% endcomment %}
+                                                    <a class="btn btn-success"
+                                                       href="{% url 'booking:opinion_add' pk=reservation.id %}"
+                                                       role="button">Add opinion</a>
+                                                    {% comment %}        {% endif %}   {% endcomment %}
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% if not perms.booking.has_hotel %}
+                                                {% comment %} {% if reservation.is_before %}{% endcomment %}
+                                                <a class="btn btn-success"
+                                                   href="{% url 'booking:reservation_delete' pk=reservation.id %}"
+                                                   role="button">Delete
+                                                    Reservation</a>
+                                                {% comment %}    {% endif %}{% endcomment %}
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

@@ -8,7 +8,7 @@ from django.contrib.auth.urls import views as auth_views
 from django.views import View
 from booking.forms import RegistrationForm, ReservationForm, OpinionForm
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, render_to_response
 from .models import HotelOwner, Hotel, Reservation, ReservationDays, Opinion
 from django.contrib.auth.models import Permission
 from django.urls import reverse_lazy, reverse
@@ -34,11 +34,11 @@ class Home(ListView):
 
     def get_queryset(self):
         qs = Hotel.objects.all()
-        query = self.request.GET.get("q", None)
-        if query is not None:
-            qs = qs.filter(hotel_city__icontains=query)
-        else:
-            qs = Hotel.objects.all()
+        # query = self.request.GET.get("q", None)
+        # if query is not None:
+        #     qs = qs.filter(hotel_city__icontains=query)
+        # else:
+        #     qs = Hotel.objects.all()
 
         return qs
 
@@ -97,40 +97,136 @@ class HotelDetails(DetailView):
 
 
 class HotelStatistics(ListView):
-    model = Reservation
-    context_object_name = 'hotel'
+    context_object_name = 'reservations'
     template_name = 'booking/hotel_statistics.html'
 
-    def get(self, request, *args, **kwargs):
-        if self.request.is_ajax():
-            data = self.request.GET.get('month_id')
-            print(data)
-            reservations = Reservation.objects.filter(reservation_from=data)
-            return render(request, 'booking/statistics_list.html.html', {'reservations': reservations})
-        else:
-            return render(request, 'booking/statistics_list.html.html', {'reservations': Reservation.objects.all()})
+    def get_queryset(self, **kwargs):
+        pknum = self.kwargs.get('pk', )
+        hotel = Hotel.objects.get(pk=pknum)
+        reservationsDuringMonth = Reservation.objects.filter(reservation_hotel=hotel).filter(reservation_from__month=1)
+        return reservationsDuringMonth
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super(HotelStatistics, self).get_context_data(**kwargs)
         pknum = self.kwargs.get('pk', )
         hotel = Hotel.objects.get(pk=pknum)
-        reservations = Reservation.objects.filter(reservation_hotel=hotel)
-        context['reservations'] = reservations
-        all_prices = []
-        for res in reservations:
-            sglTotalPrice = res.reservation_room_sgl_quantity * hotel.hotel_room_sgl_price
-            dblTotalPrice = res.reservation_room_dbl_quantity * hotel.hotel_room_dbl_price
-            twinTotalPrice = res.reservation_room_twin_quantity * hotel.hotel_room_twin_price
-            tplTotalPrice = res.reservation_room_tpl_quantity * hotel.hotel_room_tpl_price
-            qdblTotalPrice = res.reservation_room_qdbl_quantity * hotel.hotel_room_qdbl_price
-            familyTotalPrice = res.reservation_room_family_quantity * hotel.hotel_room_family_price
-            apartmentTotalPrice = res.reservation_room_apartment_quantity * hotel.hotel_room_apartment_price
-            deltaDays = (res.reservation_to - res.reservation_from).days
-            prices = [sglTotalPrice, dblTotalPrice, twinTotalPrice, tplTotalPrice, qdblTotalPrice, familyTotalPrice,
-                        apartmentTotalPrice, apartmentTotalPrice, deltaDays]
-            all_prices.append(prices)
-        context['prices'] = all_prices
+        context['hotel_id'] = hotel.pk
+        context['hotel'] = hotel
         return context
+
+    #
+    # def get_context_data(self, **kwargs):
+    #     month = self.request.session.get('month', 1)
+    #     print("miesiac w hotel statistics: " + str(month))
+    #
+    #     context = super(HotelStatistics, self).get_context_data(**kwargs)
+    #     pknum = self.kwargs.get('pk', )
+    #     hotel = Hotel.objects.get(pk=pknum)
+    #     reservationsDuringMonth = Reservation.objects.filter(reservation_from__month=month).filter(reservation_hotel=hotel)
+    #     print("total price: " + str(reservationsDuringMonth[0].reservation_total_price))
+    #     quantityTable = []
+    #     wholeQuantityTable = []
+    #     priceForTable = []
+    #     wholePriceForTable = []
+    #     totalPriceTable = []
+    #     for fromTo in reservationsDuringMonth:
+    #         quantityTable.clear()
+    #         priceForTable.clear()
+    #         quantityTable.append(fromTo.reservation_room_sgl_quantity)
+    #         quantityTable.append(fromTo.reservation_room_dbl_quantity)
+    #         quantityTable.append(fromTo.reservation_room_twin_quantity)
+    #         quantityTable.append(fromTo.reservation_room_tpl_quantity)
+    #         quantityTable.append(fromTo.reservation_room_qdbl_quantity)
+    #         quantityTable.append(fromTo.reservation_room_family_quantity)
+    #         quantityTable.append(fromTo.reservation_room_apartment_quantity)
+    #
+    #         priceForTable.append(fromTo.reservation_room_apartment_quantity * hotel.hotel_room_sgl_price)
+    #         priceForTable.append(fromTo.reservation_room_dbl_quantity * hotel.hotel_room_dbl_price)
+    #         priceForTable.append(fromTo.reservation_room_twin_quantity * hotel.hotel_room_twin_price)
+    #         priceForTable.append(fromTo.reservation_room_tpl_quantity * hotel.hotel_room_tpl_price)
+    #         priceForTable.append(fromTo.reservation_room_qdbl_quantity * hotel.hotel_room_qdbl_price)
+    #         priceForTable.append(fromTo.reservation_room_family_quantity * hotel.hotel_room_family_price)
+    #         priceForTable.append(fromTo.reservation_room_apartment_quantity * hotel.hotel_room_apartment_price)
+    #
+    #         wholeQuantityTable.append(quantityTable)
+    #         wholePriceForTable.append(priceForTable)
+    #         totalPriceTable.append(fromTo.reservation_room_sgl_quantity * hotel.hotel_room_sgl_price +
+    #                                fromTo.reservation_room_dbl_quantity * hotel.hotel_room_dbl_price +
+    #                                fromTo.reservation_room_twin_quantity * hotel.hotel_room_twin_price +
+    #                                fromTo.reservation_room_tpl_quantity * hotel.hotel_room_tpl_price +
+    #                                fromTo.reservation_room_qdbl_quantity * hotel.hotel_room_qdbl_price +
+    #                                fromTo.reservation_room_family_quantity * hotel.hotel_room_family_price +
+    #                                fromTo.reservation_room_apartment_quantity * hotel.hotel_room_apartment_price)
+    #
+    #     wholeQuantityTableLength = len(wholeQuantityTable)
+    #     indexList = []
+    #     for x in range(wholeQuantityTableLength):
+    #         indexList.append(x)
+    #
+    #     indexZipped = zip(wholeQuantityTable, indexList)
+    #     print("index list: " + str(indexList))
+    #
+    #     print("wholeQuantityTable: ")
+    #     print(wholeQuantityTable)
+    #     print("wholePriceForTable: ")
+    #     print(wholePriceForTable)
+    #
+    #     table_from = []
+    #     table_to = []
+    #     table_from_who = []
+    #     for fromTo in reservationsDuringMonth:
+    #         table_from.append(fromTo.reservation_from)
+    #         table_to.append(fromTo.reservation_to)
+    #         table_from_who.append(fromTo.reservation_owner)
+    #
+    #     print("res: " + str(list(reservationsDuringMonth)))
+    #
+    #     context['hotel_id'] = pknum
+    #     context['hotel'] = hotel
+    #     context['wholeQuantityTable'] = wholeQuantityTable
+    #     context['wholePriceForTable'] = wholePriceForTable
+    #     context['indexZipped'] = indexZipped
+    #     context['table_from'] = table_from
+    #     context['table_to'] = table_to
+    #     context['table_from_who'] = table_from_who
+    #     context['totalPriceTable'] = totalPriceTable
+    #     print("zaszlo do konca")
+    #     return context
+
+
+@csrf_exempt
+def update_months(request, hotel_id):
+    if request.GET.get('month'):
+        month = request.GET.get('month')
+        request.session['month'] = int(month) + 1
+        return HttpResponseRedirect(reverse('booking:hotel_statistics', args=(hotel_id,)))
+    else:
+        return render_to_response(request, 'booking/hotel_statistics.html')
+
+
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(HotelStatistics, self).get_context_data(**kwargs)
+    #     pknum = self.kwargs.get('pk', )
+    #     hotel = Hotel.objects.get(pk=pknum)
+    #     reservations = Reservation.objects.filter(reservation_hotel=hotel)
+    #     context['reservations'] = reservations
+    #     all_prices = []
+    #     for res in reservations:
+    #         sglTotalPrice = res.reservation_room_sgl_quantity * hotel.hotel_room_sgl_price
+    #         dblTotalPrice = res.reservation_room_dbl_quantity * hotel.hotel_room_dbl_price
+    #         twinTotalPrice = res.reservation_room_twin_quantity * hotel.hotel_room_twin_price
+    #         tplTotalPrice = res.reservation_room_tpl_quantity * hotel.hotel_room_tpl_price
+    #         qdblTotalPrice = res.reservation_room_qdbl_quantity * hotel.hotel_room_qdbl_price
+    #         familyTotalPrice = res.reservation_room_family_quantity * hotel.hotel_room_family_price
+    #         apartmentTotalPrice = res.reservation_room_apartment_quantity * hotel.hotel_room_apartment_price
+    #         deltaDays = (res.reservation_to - res.reservation_from).days
+    #         prices = [sglTotalPrice, dblTotalPrice, twinTotalPrice, tplTotalPrice, qdblTotalPrice, familyTotalPrice,
+    #                   apartmentTotalPrice, apartmentTotalPrice, deltaDays]
+    #         all_prices.append(prices)
+    #     context['prices'] = all_prices
+    #     return context
+
 
 
 class ReservationCreate(CreateView):
@@ -146,6 +242,9 @@ class ReservationCreate(CreateView):
 
         start_date = form.instance.reservation_from
         end_date = form.instance.reservation_to
+        start_date.strftime('%m-%d-%y')
+        end_date.strftime('%m-%d-%y')
+
         today = date.today()
         sgl_room_quantity = 0
         dbl_room_quantity = 0
@@ -207,6 +306,10 @@ class ReservationCreate(CreateView):
         if end_date < start_date:
             date_error = True
 
+        print("start date: " + str(start_date))
+        print("end date: " + str(end_date))
+        print("today: " + str(today))
+
         if start_date < today or end_date < today:
             date_error_2 = True
 
@@ -234,6 +337,15 @@ class ReservationCreate(CreateView):
                 form.add_error('reservation_to', forms.ValidationError('You cant choose a date earlier than today.'))
             return super(ReservationCreate, self).form_invalid(form)
         else:
+
+            form.instance.reservation_total_price = sgl_room_quantity * hotel.hotel_room_sgl_price + \
+                                                    dbl_room_quantity * hotel.hotel_room_dbl_price + \
+                                                    twin_room_quantity * hotel.hotel_room_twin_price + \
+                                                    tpl_room_quantity * hotel.hotel_room_tpl_price + \
+                                                    qdbl_room_quantity * hotel.hotel_room_qdbl_price + \
+                                                    family_room_quantity * hotel.hotel_room_family_price + \
+                                                    apartment_room_quantity * hotel.hotel_room_apartment_price
+
             response = super(ReservationCreate, self).form_valid(form)
             if start_date != end_date:
                 for single_date in daterange(start_date, end_date):
@@ -299,6 +411,7 @@ class ReservationCreate(CreateView):
             for day in thisReservationDays:
                 print(str(day.reservation_dates) + " - " + day.reservation_room)
 
+
             return response
 
 
@@ -327,7 +440,7 @@ class OpinionCreate(CreateView):
         reservation_end_date = reservation.reservation_to
         opinion_form = form.save(commit=False)
 
-        if count == 1 or reservation_end_date >= date.today():
+        if count == 1:# or reservation_end_date >= date.today():
             return redirect(reverse('booking:profile'))
         else:
             opinion_form.save()
@@ -351,20 +464,22 @@ class ReservationDelete(DeleteView):
     model = Reservation
     template_name = 'booking/delete_reservation.html'
 
-    def delete(self, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         success_url = self.get_success_url()
         obj = super(ReservationDelete, self).get_object()
         now = datetime.datetime.now() + datetime.timedelta(days=-1)
-        if obj.reservation_from.strftime("%Y-%m-%d") < now.strftime("%Y-%m-%d"):
+        if obj.reservation_from.strftime("%Y-%m-%d") > now.strftime("%Y-%m-%d"):
             if self.request.method == "POST":
                 explanation_text = self.request.POST.get("info", None)
                 email = EmailMessage('Your reservation was deleted, cheers.',
                                      explanation_text, to=[obj.reservation_owner.email])
-                email.send()
+                #email.send()
+                print("post")
             if self.request.method == "GET":
                 print("get")
-            return HttpResponseRedirect(success_url)
+            return super(ReservationDelete, self).delete(request, *args, **kwargs)
         else:
+            print("mamy problem")
             return HttpResponseRedirect(success_url)
 
     def get_success_url(self):
@@ -423,15 +538,27 @@ def daterange(start_date, end_date):
 def update_hotels(request):
     search_text = request.POST['search_text']
     all_hotels = Hotel.objects.filter(hotel_city__icontains=search_text)
+    print("all_hotels.count(): " + str(all_hotels.count()))
+    print(search_text)
+    for hotel in all_hotels:
+        print(str(hotel.hotel_name))
     return render(request, 'booking/ajax_search.html', {'all_hotels': all_hotels})
 
 
 @csrf_exempt
-def update_reservations(request):
-    search_text = request.POST.get('month_id', False)
-    print("tu sprawdzamy: " + str(search_text))
-    all_reservations = Reservation.objects.all()
-    return render(request, 'booking/hotel_statistics.html', {'all_reservations': all_reservations})
+def update_reservations(request, hotel_id):
+    month_search = request.POST['month']
+    hotel = Hotel.objects.get(pk=hotel_id)
+    print("tu sprawdzamy: " + str(month_search))
+    print("hotel: " + hotel.hotel_name)
+    reservationsDuringMonth = Reservation.objects.filter(reservation_from__month=month_search)\
+        .filter(reservation_hotel=hotel)
+    for reservation in reservationsDuringMonth:
+        print("reservation: " + str(reservation.reservation_from))
+    print("month " + month_search)
+    print("reservationsDuringMonth count: " + str(reservationsDuringMonth.count()))
+    return render(request, 'booking/ajax_reservation_search.html', {'reservations': reservationsDuringMonth,
+                                                                    'hotel': hotel})
 
 
 def notify_email(request):
